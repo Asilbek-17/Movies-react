@@ -1,11 +1,7 @@
-import React, { useEffect, useState } from 'react';
 import './Header.css';
 import { NavLink } from 'react-router-dom';
 
-
 export const Header = () => {
-
-
 	return (
 		<>
 			<header className='w-100 bg-primary p-3 shadow site-header d-flex align-items-center justify-content-between'>

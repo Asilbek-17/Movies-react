@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { api } from '../../API/API';
+import { api, BASE_IMG_URL_MODAL } from '../../API/API';
 import { BASE_IMG_URL } from '../../API/API';
 import './TopRatedItem.css';
 
@@ -9,6 +9,9 @@ export const TopRatedMovies = () => {
 		data: [],
 		isError: false,
 	});
+
+	const [searchMovies, setSearchMovies] = useState([]);
+	const [modal, setModal] = useState('close');
 
 	const getMovies = async () => {
 		const data = await api.getTopRatedMovies();
@@ -25,6 +28,12 @@ export const TopRatedMovies = () => {
 		getMovies();
 	}, []);
 
+	const moreInfoFn = async (evt) => {
+		setSearchMovies([]);
+		const data = await api.moreInfo(evt.target.value);
+		setSearchMovies(data.data);
+	};
+
 	return (
 		<>
 			{movies.isLoading ? <h1>Loading...</h1> : ''}
@@ -37,12 +46,14 @@ export const TopRatedMovies = () => {
 								className='card movie-item position-relative rounded-4'
 							>
 								<div className='more-div'>
-									<button
+								<button
+										onClick={(evt) => {
+											setModal('close' ? 'open' : '');
+											moreInfoFn(evt);
+										}}
 										className='movie-btn btn btn-outline-dark'
-										id={item.id}
+										value={item.id}
 										type='button'
-										data-bs-toggle='modal'
-										data-bs-target='#exampleModal'
 									>
 										More
 									</button>
@@ -54,11 +65,46 @@ export const TopRatedMovies = () => {
 									src={`${BASE_IMG_URL}/${item.poster_path}`}
 									alt=''
 								/>
-                                <span className='badge bg-danger rate-span'>{item.vote_average}</span>
+								<span className='badge bg-danger rate-span'>
+									{item.vote_average}
+								</span>
 							</li>
 						);
 				  })
 				: ''}
+			<li className={'modal ' + modal}>
+				<button
+					onClick={() => {
+						setModal('close');
+					}}
+					className='btn btn-secondary mb-3'
+				>
+					close
+				</button>
+				<img
+					height={600}
+					className='modal-img'
+					src={`${BASE_IMG_URL_MODAL}/${searchMovies.backdrop_path}`}
+					alt=''
+				/>
+				<div className='color-rgb'></div>
+				<h2 className='mt-5 text-center mb-3 fs-1'>
+					{searchMovies.original_title}
+				</h2>
+				<div className='modal-box'>
+					<p className='text-center fs-5'>{searchMovies.overview}</p>
+					<a href={searchMovies.homepage} target='blank'>
+						HomePage Movie
+					</a>
+					<span className='badge bg-danger modal-span'>
+						{searchMovies.vote_count}
+					</span>
+
+					<span className='badge bg-danger modal-data'>
+						{searchMovies.release_date}
+					</span>
+				</div>
+			</li>
 		</>
 	);
 };
